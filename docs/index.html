@@ -1,0 +1,110 @@
+<head>
+  <title>mapgen</title>
+</head>
+<body>
+  <input type="file" multiple />
+</body>
+<script>
+// get hash for some image-data
+async function digest (data, algo = 'SHA-1') {
+  return Array.from(
+    new Uint8Array(
+      await crypto.subtle.digest(algo, data)
+    ),
+    (byte) => byte.toString(16).padStart(2, '0')
+  ).join('')
+}
+
+// turn a file object into an image
+const fileToImage = file => new Promise((resolve, reject) => {
+  const img = document.createElement('img')
+  img.src = URL.createObjectURL(file)
+  img.onload = () => {
+    resolve(img)
+  }
+})
+
+const TILE_WIDTH = 16
+const TILE_HEIGHT = 16
+const BG_COLOR = '#000000'
+
+document.querySelector('input').addEventListener('change', async e => {
+  // get all tiles pulledd out (as imagedata) by hash, in allTiles
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d', {willReadFrequently: true})
+  const allTiles = {}
+  const maps = await Promise.all([...e.target.files].map(async file => {
+    const image = await fileToImage(file)
+    canvas.width = image.naturalWidth
+    canvas.height = image.naturalHeight
+    ctx.fillStyle = BG_COLOR
+    ctx.fillRect(0, 0, image.naturalWidth, image.naturalHeight)
+    ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight)
+    const tiles=[]
+    for (let x=0;x<(image.naturalWidth/TILE_WIDTH);x++) {
+      for (let y=0;y<(image.naturalHeight/TILE_HEIGHT);y++) {
+        const imagedata = ctx.getImageData(x*TILE_WIDTH, y*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)
+        const hash = await digest(new Uint8Array(imagedata.data.buffer))
+        allTiles[hash] = imagedata
+        tiles.push(hash)
+      }
+    }
+    return {
+      filename: file.name,
+      tiles
+    }
+  }))
+  
+  // create shared spritesheet image & tiled
+  const tileIds = Object.keys(allTiles)
+  const columns = Math.ceil(Math.sqrt(tileIds.length))
+  canvas.width = columns * TILE_WIDTH
+  canvas.height = columns * TILE_HEIGHT
+
+  const tileset = {
+    columns,
+    image: 'tiles.png',
+    imageheight: canvas.height,
+    imagewidth: canvas.width,
+    margin: 0,
+    name: 'tiles',
+    spacing: 0,
+    tilecount: tileIds.length,
+    tiledversion: '1.11.0',
+    tileheight: TILE_HEIGHT,
+    tilewidth: TILE_WIDTH,
+    type: 'tileset',
+    version: '1.10'
+  }
+
+  ctx.fillStyle = BG_COLOR
+  ctx.fillRect(0, 0, columns * TILE_WIDTH, columns * TILE_HEIGHT)
+  for (let x=0;x<columns;x++) {
+    for (let y=0;y<columns;y++) {
+      if (tileIds.length) {
+        ctx.putImageData(allTiles[tileIds.shift()], x*TILE_WIDTH, y*TILE_HEIGHT)
+      }
+    }
+  }
+  canvas.toBlob(async blob => {
+    const sheetUrl =  URL.createObjectURL(blob)
+    function download(urls) {
+      const [url,filename] = urls.pop()
+      const a = document.createElement('a')
+      a.setAttribute('href', url)
+      a.setAttribute('download', filename)
+      a.click()
+      if (urls.length == 0) {
+        clearInterval(interval)
+      }
+    }
+    // TODO: create tiled sheet from maps
+    const interval = setInterval(download, 300, [
+      [sheetUrl, 'tiles.png'],
+      ["data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tileset, null, 2)), 'tiles.json']
+    ])
+  })
+})
+
+
+</script>

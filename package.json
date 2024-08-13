@@ -1,6 +1,7 @@
 {
   "name": "@konsumer/mapgen",
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "description": "This will create a tiled map from some images.",
   "keywords": [
@@ -16,10 +17,8 @@
     "url": "https://konsumer.js.org"
   },
   "license": "MIT",
-  "bin": {
-    "mapgen": "./mapgen.mjs"
-  },
-  "dependencies": {
-    "canvas": "^3.0.0-rc2"
+  "dependencies": {},
+  "scripts": {
+    "start": "npx -y live-server docs"
   }
 }
