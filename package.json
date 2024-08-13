@@ -1,0 +1,25 @@
+{
+  "name": "@konsumer/mapgen",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "This will create a tiled map from some images.",
+  "keywords": [
+    "tiled",
+    "nes",
+    "retro",
+    "sprite",
+    "map"
+  ],
+  "author": {
+    "name": "David Konsumer",
+    "email": "konsumer@jetboystudio.com",
+    "url": "https://konsumer.js.org"
+  },
+  "license": "MIT",
+  "bin": {
+    "mapgen": "./mapgen.mjs"
+  },
+  "dependencies": {
+    "canvas": "^3.0.0-rc2"
+  }
+}
