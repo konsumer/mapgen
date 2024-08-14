@@ -35,8 +35,8 @@ document.querySelector('input').addEventListener('change', async e => {
     ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight)
     const tiles = []
     const size = [(image.naturalWidth / TILE_WIDTH), (image.naturalHeight / TILE_HEIGHT)]
-    for (let x = 0; x < size[0]; x++) {
-      for (let y = 0; y < size[1]; y++) {
+    for (let y = 0; y < size[1]; y++) {
+      for (let x = 0; x < size[0]; x++) {
         const imagedata = ctx.getImageData(x * TILE_WIDTH, y * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)
         const hash = await digest(new Uint8Array(imagedata.data.buffer))
         allTiles[hash] = imagedata
@@ -74,11 +74,13 @@ document.querySelector('input').addEventListener('change', async e => {
 
   ctx.fillStyle = BG_COLOR
   ctx.fillRect(0, 0, columns * TILE_WIDTH, columns * TILE_HEIGHT)
-  for (let x = 0; x < columns; x++) {
-    for (let y = 0; y < columns; y++) {
-      if (tileIds.length) {
-        ctx.putImageData(allTiles[tileIds.shift()], x * TILE_WIDTH, y * TILE_HEIGHT)
+  let i = 0
+  for (let y = 0; y < columns; y++) {
+    for (let x = 0; x < columns; x++) {
+      if (tileIds[i]) {
+        ctx.putImageData(allTiles[tileIds[i]], x * TILE_WIDTH, y * TILE_HEIGHT)
       }
+      i++
     }
   }
   canvas.toBlob(async blob => {
@@ -99,11 +101,8 @@ document.querySelector('input').addEventListener('change', async e => {
       ['data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(tileset, null, 2)), 'tiles.tsj']
     ]
 
-    const allTileIds = Object.keys(allTiles)
-
     for (const map of maps) {
       const name = map.filename.split('.')[0]
-      const tilesize = []
       const tilemap = {
         compressionlevel: -1,
         width: map.size[0],
@@ -111,7 +110,7 @@ document.querySelector('input').addEventListener('change', async e => {
         infinite: false,
         layers: [
           {
-            data: map.tiles.map(hash => allTileIds.indexOf(hash) + 1),
+            data: map.tiles.map(hash => tileIds.indexOf(hash) + 1),
             width: map.size[0],
             height: map.size[1],
             name,
