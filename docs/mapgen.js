@@ -23,13 +23,14 @@ const BG_COLOR = '#000000'
 
 document.querySelector('input').addEventListener('change', async e => {
   // get all tiles pulledd out (as imagedata) by hash, in allTiles
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+
   const allTiles = {}
   const maps = await Promise.all([...e.target.files].map(async file => {
     const image = await fileToImage(file)
+    const canvas = document.createElement('canvas')
     canvas.width = image.naturalWidth
     canvas.height = image.naturalHeight
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
     ctx.fillStyle = BG_COLOR
     ctx.fillRect(0, 0, image.naturalWidth, image.naturalHeight)
     ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight)
@@ -53,8 +54,10 @@ document.querySelector('input').addEventListener('change', async e => {
   // create shared spritesheet image & tiled
   const tileIds = Object.keys(allTiles)
   const columns = Math.ceil(Math.sqrt(tileIds.length))
+  const canvas = document.createElement('canvas')
   canvas.width = columns * TILE_WIDTH
   canvas.height = columns * TILE_HEIGHT
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
   const tileset = {
     columns,
