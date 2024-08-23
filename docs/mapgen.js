@@ -17,15 +17,15 @@ const fileToImage = file => new Promise((resolve, reject) => {
   }
 })
 
-const TILE_WIDTH = 16
-const TILE_HEIGHT = 16
-const BG_COLOR = '#000000'
+async function doMaps (files) {
+  const TILE_WIDTH = parseInt(document.getElementById('width').value)
+  const TILE_HEIGHT = parseInt(document.getElementById('height').value)
+  const BG_COLOR = document.getElementById('color').value
 
-document.querySelector('input').addEventListener('change', async e => {
   // get all tiles pulledd out (as imagedata) by hash, in allTiles
 
   const allTiles = {}
-  const maps = await Promise.all([...e.target.files].map(async file => {
+  const maps = await Promise.all(files.map(async file => {
     const image = await fileToImage(file)
     const canvas = document.createElement('canvas')
     canvas.width = image.naturalWidth
@@ -144,4 +144,14 @@ document.querySelector('input').addEventListener('change', async e => {
 
     const interval = setInterval(download, 300, downloads)
   })
+}
+
+document.getElementById('submit').disabled = true
+
+document.getElementById('submit').addEventListener('click', () => {
+  doMaps([...document.getElementById('file').files])
+})
+
+document.getElementById('file').addEventListener('change', () => {
+  document.getElementById('submit').disabled = false
 })

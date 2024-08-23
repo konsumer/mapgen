@@ -1,8 +1,32 @@
 <head>
   <title>mapgen</title>
+<style>
+  body {
+    font-family: sans-serif;
+    padding: 20px;
+  }
+  div {
+    margin-bottom: 20px;
+  }
+</style>
 </head>
 <body>
-  <p>The purpose of this is to turn a static tilemap image (like from gameplay) into a <a href="https://www.mapeditor.org/">Tiled</a> map. Upload all your images at once, and it will create a shared spritesheet & tileset, with many maps. You can find the source <a href="https://github.com/konsumer/mapgen">here</a>.</p>
-  <input type="file" multiple />
+  <h1>mapgen</h1>
+  <p>The purpose of this is to turn a static tilemap image (like from NES gameplay) into a <a href="https://www.mapeditor.org/">Tiled</a> map.</p>
+  <p>Upload all your images at once, and it will create a shared spritesheet & tileset, with many maps.</p>
+  <p>You can find the source <a href="https://github.com/konsumer/mapgen">here</a>.</p>
+  <div>
+    Images: <input id="file" type="file" multiple />
+  </div>
+  <div>
+    Tiles: <input id="width" type="number" value="16" min="2" max="1024" step="2" /> x 
+    <input id="height" type="number" value="16" min="2" max="1024" step="2" />
+  </div>
+  <div>
+    Blank color: <input type="color" value="#000000" id="color" />
+  </div>
+  <div>
+    <button id="submit">Generate</button>
+  </div>
 </body>
 <script type="module" src="mapgen.js"></script>
